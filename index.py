@@ -1,12 +1,18 @@
-file = open("text.txt", "r")
+with open("text.txt", "r", encoding="utf-8") as file:
+  line = file.read().split("\n")
 
-line = file.readlines()
+#guarda variaveis e clausulas em n e m, respectivamente
+for linha in line:
+  if linha.startswith('p'):
+    n = int(linha.split(" ")[2])
+    m = int(linha.split(" ")[3])
 
-n = int(line[0].split(" ")[2])
-m = int(line[0].split(" ")[3])
+#remove linhas que não são cláusulas
+line = [s for s in line if not (s.startswith("p") or s.startswith("c"))]
+
 form = list()
 
-for i in range(1, m + 1):
+for i in range(0, m):
   clauses = set()
   for l in line[i].split(" "):
     if int(l) != 0:
@@ -32,5 +38,3 @@ def dpll(F: list) -> int:
     return 0
 
 simplifica(form)
-
-file.close()
