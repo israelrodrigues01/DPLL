@@ -1,5 +1,12 @@
-p cnf 3 4
-1 2 3 0
-1 5 6 0
--2 0
-8 -2 0
+c Instância positiva com 10 cláusulas e 6 variáveis
+p cnf 6 10
+1 2 0
+-1 2 3 0
+-2 3 4 0
+4 5 6 0
+-1 -2 -3 0
+1 -4 0
+3 -5 0
+6 -1 0
+2 -6 0
+5 -3 0
