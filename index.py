@@ -1,78 +1,70 @@
+def dpll(simbolos, clausulas, valoracao):
+    
+    if all(len(c) == 0 for c in clausulas):
+        return True
+    if any(len(c) == 0 for c in clausulas):
+        return False
+
+    for simbolo in simbolos:
+        if simbolo not in valoracao:
+            break
+
+    aux_valoracao_true = valoracao.copy()
+    aux_valoracao_true[simbolo] = True
+    aux_clausulas_true = [[c for c in clausula if c != -simbolo] for clausula in clausulas]
+
+    if dpll(simbolos, aux_clausulas_true, aux_valoracao_true):
+        return True
+
+    aux_valoracao_false = valoracao.copy()
+    aux_valoracao_false[simbolo] = False
+    aux_clausulas_false = [clausula for clausula in clausulas if -simbolo not in clausula]
+    return dpll(simbolos, aux_clausulas_false, aux_valoracao_false)
+
+def satisfativel(F):
+    simbolos = set(abs(literal) for clausula in F for literal in clausula)
+    valoracao = {}
+    return dpll(simbolos, F, valoracao)
+
+def simplifica(F: list) -> list:
+    clausulas_unitaria = set()
+    clausulas_var_negada = set()
+
+    for clausula in F:
+        if len(clausula) == 1:
+            clausulas_unitaria.add(clausula.pop())
+        else:
+            clausulas_var_negada.update(clausula)
+
+    F = [clausula for clausula in F if not any(-var in clausula for var in clausulas_unitaria)]
+
+    for clausula in F:
+        clausula.difference_update(-var for var in clausulas_var_negada)
+
+    return F
+
 with open("text.txt", "r", encoding="utf-8") as file:
     line = file.read().split("\n")
 
-# guarda variaveis e clausulas em n e m, respectivamente
 for linha in line:
     if linha.startswith('p'):
         n = int(linha.split(" ")[2])
         m = int(linha.split(" ")[3])
 
-# remove linhas que não são cláusulas
 line = [s for s in line if not (s.startswith("p") or s.startswith("c"))]
 
 form = []
 
 for i in range(0, m):
-    clauses = set()
+    clausulas = set()
     for l in line[i].split(" "):
         if int(l) != 0:
-            clauses.add(int(l))
-    form.append(clauses)
-
-
-def dpll(symbols, clauses, model):
-    
-    if all(len(c) == 0 for c in clauses):
-        return True
-    if any(len(c) == 0 for c in clauses):
-        return False
-
-    for symbol in symbols:
-        if symbol not in model:
-            break
-
-    aux_model_true = model.copy()
-    aux_model_true[symbol] = True
-    aux_clauses_true = [[c for c in clause if c != -symbol]
-                        for clause in clauses]
-    result_true = dpll(symbols, aux_clauses_true, aux_model_true)
-
-    if result_true:
-        return True
-
-    aux_model_false = model.copy()
-    aux_model_false[symbol] = False
-    aux_clauses_false = [clause for clause in clauses if -symbol not in clause]
-    return dpll(symbols, aux_clauses_false, aux_model_false)
-
-def satisfativel(F):
-    symbols = set(abs(literal) for clause in F for literal in clause)
-    model = {}
-    return dpll(symbols, F, model)
-
-
-def simplifica(F: list) -> list:
-    clauses_unitaria = set()
-    clauses_var_negada = set()
-
-    for clause in F:
-        if len(clause) == 1:
-            clauses_unitaria.add(clause.pop())
-        else:
-            clauses_var_negada.update(clause)
-
-    F = [clause for clause in F if not any(-var in clause for var in clauses_unitaria)]
-
-    for clause in F:
-        clause.difference_update(-var for var in clauses_var_negada)
-
-    return F
+            clausulas.add(int(l))
+    form.append(clausulas)
 
 print(form)
 
-satisfatibilidade = satisfativel(simplifica(form))
-
-if satisfatibilidade:
+if satisfativel(simplifica(form)):
     print("Satisfatível")
 else:
     print("Insatisfatível")
